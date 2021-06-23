@@ -420,6 +420,64 @@
 			echo "Путёвка удалена";
 		}
 		
+		if (isset($data['delete_city']))
+		{
+			$res = R::getAll("SELECT id, name FROM `city` ORDER BY id ASC");
+			if ($res)
+			{
+				echo "<form action='' method='POST'>
+							После удаления исчезнут все улицы и корпуса данного города. Будьте осторожны. </br></br>
+							Выбрать город
+						    <select  name='city'>";
+				foreach ($res as $key => $value) 
+				{
+					echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+				}
+				echo "<p><input type='submit' name = 'delete_choice_city' value='Удалить'></p></select></form>";
+			} else echo "Городов нет";
+		}
+
+		if (isset($data['delete_choice_city']))
+		{
+			R::exec("DELETE FROM `city` WHERE `city`.`id` = " . $data['city']);
+			echo "Город удалён";
+		}
+
+		if (isset($data['delete_street']))
+		{
+			$res = R::getAll("SELECT street.id, street.name, city.name AS 'city' FROM `street`, city WHERE street.city = city.id");
+			if ($res)
+			{
+				echo "<form action='' method='POST'>
+							После удаления исчезнут все корпуса данной улицы. Будьте осторожны. </br></br>
+							Выбрать улицу
+						    <select  name='street'>";
+				foreach ($res as $key => $value) 
+				{
+					echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "(". $value['city'] .")</option>";
+				}
+				echo "<p><input type='submit' name = 'delete_choice_street' value='Удалить'></p></select></form>";
+			} else echo "Улиц нет";
+		}
+
+		if (isset($data['delete_choice_street']))
+		{
+			R::exec("DELETE FROM `street` WHERE `street`.`id` = " . $data['street']);
+			echo "Улица удалён";
+		}
+
+		write_admin_button();
+		echo "<a href='log_out.php'>Выйти</a></br></br>";
+		
+	}else
+	{
+		// Список пансионатов.
+		// Для заказа билетов необходима регистрация.
+		echo "Добро пожаловать на сайт пансионата</br></br>
+		Для заказа путёвки необходима регистрация</br></br>
+			<a href='log_in.php'>Вход</a></br></br>
+			<a href='sign_in.php'>Регистрация</a>";
+	}
 ?>
 
 <?php function write_admin_button()
