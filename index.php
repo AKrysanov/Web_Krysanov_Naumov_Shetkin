@@ -804,6 +804,112 @@ function change_name_print()
 				</form>";
 }
 
+function print_date_change()
+{
+	if (!($_POST['choiced_tickets'])) $_POST['choiced_tickets'] = $_POST['choiced_ticket'];
+	echo "<form action='' method='POST'>
+			Выберите новые даты</br>
+			Дата заезда
+			<input type='hidden' name = 'choiced_ticket' value = '". $_POST['choiced_tickets'] . "'>
+			<input type = date name = date_begin min = " . date("Y-m-d") ." value = " . $_POST['date_begin']. "></br></br>
+			Дата выезда
+			<input type = date name = date_end min = " . date("Y-m-d") . " value = " . $_POST['date_end']. "> </br></br>
+			<button type='submit' name = 'change_date_tic'>Изменить даты путёвки</button>
+			</form>";
+}
+
+function print_select_room($table, $begin, $end)
+{
+	echo "<form action='' method='POST'>
+	<input type='hidden' name = 'begin' value = '".$begin . "'>
+	<input type='hidden' name = 'end' value = '".$end . "'>
+	Выбрать комнату:
+    <select  name='rooms'>";
+    foreach ($table as $key => $value) 
+    {
+    	echo "<option value= '" .  $value['Номер'] . "'>" . $value['Номер'] . "</option>";
+    }
+   	echo "<p><input type='submit' name = 'choice_room' value='Выбрать'></p></select></form>";
+}
+
+function print_select_room_change($table, $begin, $end, $tic)
+{
+	echo "<form action='' method='POST'>
+	<input type='hidden' name = 'begin' value = '". $begin . "'>
+	<input type='hidden' name = 'end' value = '". $end . "'>
+	<input type='hidden' name = 'tic' value = '". $tic['id'] . "'>
+	<input type='hidden' name = 'client' value = '". $tic['client'] . "'>
+	Выбрать комнату:
+    <select  name='rooms'>";
+    foreach ($table as $key => $value) 
+    {
+    	echo "<option value= '" .  $value['Номер'] . "'>" . $value['Номер'] . "</option>";
+    }
+   	echo "<p><input type='submit' name = 'choice_change_room' value='Выбрать'></p></select></form>";
+}
+
+function print_select_change_room($table, $id)
+{
+	echo "<form action='' method='POST'>
+	<input type='hidden' name = 'tic' value = '". $id . "'>
+	Выбрать комнату:
+    <select  name='rooms'>";
+    foreach ($table as $key => $value) 
+    {
+    	echo "<option value= '" .  $value['Номер'] . "'>" . $value['Номер'] . "</option>";
+    }
+   	echo "<p><input type='submit' name = 'change_ticket_room' value='Выбрать'></p></select></form>";
+}
+
+function get_rooms($begin, $end)
+{
+return R::getAll("SELECT room.building AS 'Корпус', `tv`.num AS 'Номер', type.name AS 'Тип', type.cost AS 'Цена за ночь' FROM room, 
+										type,
+										(SELECT
+										room.number AS num
+										FROM
+										room
+										WHERE
+										!(
+										room.number IN(
+										(
+										SELECT
+										ticket.room AS 'Комната'
+										FROM
+										ticket
+										WHERE
+										(
+										check_date <= '". $begin. "' AND eviction_date >= '". $begin. "'
+										) OR(
+										check_date <= '" . $end . "' AND eviction_date >= '" . $end . "'
+										) OR(
+										check_date >= '". $begin. "' AND eviction_date <= '" . $end . "'
+										)
+										)
+										)
+										) AND room.state <> 1
+										UNION
+										SELECT room.number FROM
+										room,
+										(SELECT
+										ticket.room AS 'Комната',
+										SUM(1) AS 'Места'
+										FROM
+										ticket
+										WHERE
+										(
+										check_date <= '". $begin. "' AND eviction_date >= '". $begin. "'
+										) OR(
+										check_date <= '" . $end . "' AND eviction_date >= '" . $end . "'
+										) OR(
+										check_date >= '". $begin. "' AND eviction_date <= '" . $end . "'
+										)
+										GROUP BY ticket.room) AS places
+										
+										WHERE places.`Комната` = room.number AND (room.places - places.`Места` >0)) AS tv
+										WHERE room.number = tv.num AND room.type = type.id ORDER BY tv.num ASC");
+}
+
 ?>
 </center>
 <title>Пансионат</title>
