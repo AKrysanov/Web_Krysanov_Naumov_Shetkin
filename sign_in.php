@@ -1,3 +1,72 @@
+<?php 
+	require "db/connectt.php";
+	$data = $_POST;
+
+ 	if (isset($data['reg']))
+	{
+		$eggor = array();
+		
+		if ($data['surname'] == '')
+		{
+			$eggor[] = "Введите фамилию";
+		}
+
+		if ($data['name'] == '')
+		{
+			$eggor[] = "Введите имя";
+		}
+
+		if ($data['series'] == '')
+		{
+			$eggor[] = "Введите серию паспорта";
+		}
+
+		if ($data['num'] == '')
+		{
+			$eggor[] = "Введите номер паспорта";
+		} else {
+			$resul = R::exec('SELECT id FROM `client` WHERE id = \''. $data['series'] . $data['num']. '\'');
+			if (!(empty($resul)))
+			$eggor[] = "Пользователь с таким паспортом уже существует";
+			}
+		if ($data['login'] == '')
+		{
+			$eggor[] = "Введите логин";
+		}else if (R::count('client', "login = ?", array($data['login'])) >0)
+			$eggor[] = "Такой пользователь уже существует";
+		
+		if ($data['passwd'] == '')
+			{
+			$eggor[] = "Некорректный пароль";
+		} else 
+		if ($data['passwd2'] == '' || $data['passwd'] != $data['passwd2'])
+			{
+			$eggor[] = "Некорректный повтор пароля";
+			}	
+
+		if (empty($eggor))	
+		{
+			R::exec('INSERT INTO `client` (`id`, `surname`, `name`, `patronymic`, `login`, `password`) 
+			VALUES (\'' . $data['series'] . $data['num'] . '\', 
+			\'' . $data['surname'] . '\', 
+			\'' . $data['name']. '\', 
+			\'' . $data['patr'] . '\', 
+			\'' . $data['login'] . '\', 
+			\'' . password_hash($data['passwd'], PASSWORD_DEFAULT) . '\')');
+			
+			$_SESSION['log_user'] = $data['series'] . $data['num'];
+			$_SESSION['login'] = $data['login'];
+ 		 	header('location: /index.php');
+		}
+		else 
+		foreach ($eggor as $key => $value) {
+			echo $value . "</br>";
+		}
+	}
+
+ ?>
+
+
 <title>Регистрация</title>
 <form action="sign_in.php" method="POST">
 	<p>
