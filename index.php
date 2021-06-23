@@ -20,6 +20,54 @@
 			// Новая путёвка. 
 			print_date();
 		}
+		
+		if (isset($data['get_rooms']))
+		{
+			// Выбор комнаты. 
+			if (!($data['date_begin'])) 
+			{
+				echo "Введите дату заезда";
+				print_date();
+			}
+			else if (!($data['date_end'])) 
+				{
+					echo "Введите дату выезда";
+					print_date();
+				}
+				else if ($data['date_end'] < $data['date_begin'])
+				{
+					echo "Дата выезда должна быть позже даты заезда";
+					print_date();
+				}
+				else
+				{
+					$resul = R::getAll("SELECT * FROM `корпус`");
+
+					echo "Адреса корпусов:";
+					print_table($resul);
+
+					$begin = $data['date_begin'];
+					$end = $data['date_end'];
+
+					$resul = get_rooms($begin, $end);
+
+					$days = 1+(strtotime($end) - strtotime($begin))/60/60/24;
+					echo "</br>Доступные комнаты в период с " . $begin . " по " . $end . " (количествно дней - " . $days . "):";
+					print_table($resul);
+					echo "</br>"; 
+					
+					print_select_room($resul, $begin, $end);			
+				}
+		}
+
+		if (isset($data['choice_room']))
+		{
+			// Добавление путёвки.
+			R::exec("INSERT INTO `ticket` (`id`, `client`, `room`, `check_date`, `eviction_date`) 				VALUES (NULL, '". $id . "', '". $data['rooms']. "', '". $data['begin'] . "', '". $data['end']. "')");
+			echo "Путёвка куплена";
+		}
+
+		
 	}else if ($_SESSION['log_user'] == -1) 
 	{
 		echo "Вы вошли как администратор.</br></br>";
