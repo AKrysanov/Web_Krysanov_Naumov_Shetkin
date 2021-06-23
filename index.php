@@ -420,15 +420,6 @@
 			echo "Путёвка удалена";
 		}
 		
-	}else
-	{
-		// Список пансионатов.
-		// Для заказа билетов необходима регистрация.
-		echo "Добро пожаловать на сайт пансионата</br></br>
-		Для заказа путёвки необходима регистрация</br></br>
-			<a href='log_in.php'>Вход</a></br></br>
-			<a href='sign_in.php'>Регистрация</a>";
-	}
 ?>
 
 <?php function write_admin_button()
@@ -470,6 +461,41 @@ function print_date_admin()
 			<input type = date name = date_end value = " . $_POST['date_end']. "> </br>
 			<button type='submit' name = 'get_tickets'>Получить список путёвок</button>
 			</form>";
+}
+
+function print_table($table)
+{
+	$f = 0;
+	echo "<table>
+	<style>
+        	table 
+        	{
+            	border: solid 1px; 
+            	border-collapse: collapse;
+        	}	
+        	TD, TH {
+			    padding: 3px; 
+   				border: 1px solid black; 
+   			}	
+    		</style>";
+	foreach ($table as $key => $value) 
+	{
+		if ($f==0) 
+		{
+			echo "<tr>";
+			foreach ($value as $name => $val)
+				echo "<td>" .  $name . "</td>";
+			echo "</tr>";
+			$f = 1;
+		}
+		echo "<tr>";
+		foreach ($value as $name => $val)
+		{
+			echo "<td>" .  $val . "</td>";
+		}
+		echo "</tr>";
+	}
+	echo "</table>";
 }
 
 ?>
