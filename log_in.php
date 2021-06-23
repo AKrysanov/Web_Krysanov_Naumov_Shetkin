@@ -75,5 +75,5 @@
 </p>	
 <p>
 <a href="sign_in.php">Регистрация</a></p>
-<a href="dich.php">Главная страница</a></p>
+<a href="index.php">Главная страница</a></p>
  </form>
