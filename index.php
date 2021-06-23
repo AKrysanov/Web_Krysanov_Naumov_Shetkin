@@ -142,6 +142,90 @@
 			else echo "К сожалению, вы ещё не были у нас. </br>Срочно это исправьте.</br></br>";
 		}
 		
+				if (isset($data['choice_ticket']))
+		{
+			// Изменение путёвки. 
+			echo "<form action='' method='POST'>
+					Выберите, что нужно сделать с путёвкой №".  $data['tickets']. ":</br></br>
+					<input type='hidden' name = 'choiced_tickets' value = '". $data['tickets'] . "'>
+					<button type='submit' name = 'change_date'>Изменить даты</button>
+					<button type='submit' name = 'change_room'>Изменить комнату</button>
+					<button type='submit' name = 'delete_ticket'>Отменить путёвку</button>
+				    </form>";
+		}
+
+		if (isset($data['change_date']))
+		{
+			// Изменение даты путёвки. 
+			print_date_change();
+		}
+
+		if (isset($data['change_date_tic']))
+		{
+			// Изменение даты путёвки. 
+			if (!($data['date_begin'])) 
+			{
+				echo "Введите дату заезда";
+				print_date_change();
+			}
+			else if (!($data['date_end'])) 
+				{
+					echo "Введите дату выезда";
+					print_date_change();
+				}
+				else if ($data['date_end'] < $data['date_begin'])
+				{
+					echo "Дата выезда должна быть позже даты заезда";
+					print_date_change();
+				}
+				else
+				{
+				$tic = R::getAll("SELECT * FROM `ticket` WHERE id = " . $data['choiced_ticket']);
+				$tic = $tic[0];
+
+				R::exec("DELETE FROM `ticket` WHERE `ticket`.`id` = " . $data['choiced_ticket']);
+
+				$begin = $data['date_begin'];
+				$end = $data['date_end'];
+
+				$resul = get_rooms($begin, $end);
+			
+			$f = 0;
+			foreach ($resul as $key => $value) {
+				if ($value['Номер'] ==  $tic['room']) 
+					$f = 1;
+			}
+
+			if ($f == 1)
+			{
+			// Если всё ок, изменение дат.
+				R::exec("INSERT INTO `ticket` (`id`, `client`, `room`, `check_date`, `eviction_date`) 
+				VALUES ('". $tic['id'] ."', '" . 
+				$tic['client'] ."', '" . 
+				$tic['room'] . "', '" . 
+				$begin . "', '".
+				$end  ."')");
+				echo "Даты изменены";
+			}
+			else 
+			{
+				// если не всё ок, то "выберите другую комнату"
+				R::exec("INSERT INTO `ticket` (`id`, `client`, `room`, `check_date`, `eviction_date`) 
+				VALUES ('". $tic['id'] ."', '" . 
+				$tic['client'] ."', '" . 
+				$tic['room'] . "', '" . 
+				$tic['check_date'] . "', '".
+				$tic['eviction_date']  ."')");
+				echo "Комната в эти даты занята. Выберите другую:";
+				print_table($resul);
+				echo "</br>";
+				print_select_room_change($resul, $begin, $end, $tic);
+				// Другая кнопка		
+			}
+		}
+		}
+
+		
 	}else if ($_SESSION['log_user'] == -1) 
 	{
 		echo "Вы вошли как администратор.</br></br>";
