@@ -6,7 +6,13 @@
 <?php 
 	if ($_SESSION['log_user'] > 0) 
 	{
-		
+		$res = R::getAll("SELECT client.id, client.surname, client.name, client.patronymic FROM `client` WHERE  client.login = '" . $_SESSION['login'] . "'");
+
+		$id = $res[0]['id'];
+
+		echo "Здравствуйте, ". $res[0]['name'] . " ". $res[0]['patronymic'] . ". </br></br>";
+
+		$data = $_POST;
 	}else if ($_SESSION['log_user'] == -1) 
 	{
 		echo "Вы вошли как администратор.</br></br>";
