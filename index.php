@@ -92,6 +92,55 @@
 				echo "Пользователь с таким паспортом уже существует";
 			}
 		}
+		if (isset($data['list']))
+		{
+			// Вывод путёвок. 
+			$res = R::getAll('SELECT ticket.id, ticket.room, ticket.check_date, ticket.eviction_date FROM `ticket` WHERE client =' . $id);
+			
+			if (!(empty($res)))
+			{
+				echo "Список ваших путёвок</br></br>";
+				echo "<table>
+			<style>
+        	table 
+        	{
+            	border: solid 1px; 
+            	border-collapse: collapse;
+        	}	
+        	TD, TH {
+			    padding: 3px; 
+   				border: 1px solid black; 
+   			}	
+    		</style>
+    		<tr><td>Номер путёвки</td><td>Комната</td><td>Дата заезда</td><td>Дата выезда</td><td>Цена</td><td>Состояние</td></tr>";
+    		$cnt = 0;
+				foreach ($res as $key => $value) 
+			 	{
+			 		$cost = R::getAll('SELECT `цена путёвки`.`Стоимость проживания`,`цена путёвки`.`Статус путёвки`  FROM `цена путёвки` WHERE `Номер путёвки` = ' . $value['id']);
+
+			 		echo "<tr><td>" . $value['id'] . "</td><td>" . $value['room'] . "</td><td>" . $value['check_date'] . 
+			 		"</td><td>" . $value['eviction_date'] . "</td><td>" . $cost[0]['Стоимость проживания'] . "</td><td>" . $cost[0]['Статус путёвки'] . "</td></tr>";
+			 		if ($cost[0]['Статус путёвки'] == "Ожидается") $cnt++;
+				}
+				echo "</table></br></br>";
+
+				$res = R::getAll('SELECT ticket.id FROM `ticket` WHERE ticket.check_date > NOW() AND client =' . $id);
+				
+				if ($cnt > 0)
+				{
+					echo "<form action='' method='POST'>
+						Изменить путёвку
+					    <select  name='tickets'>";
+
+					foreach ($res as $key => $value) 
+				 	{
+				 		echo "<option value= '" .  $value['id'] . "'>" . $value['id'] . "</option>";
+					}
+					echo "<p><input type='submit' name = 'choice_ticket' value='Выбрать'></p></select></form>";
+				}
+			}
+			else echo "К сожалению, вы ещё не были у нас. </br>Срочно это исправьте.</br></br>";
+		}
 		
 	}else if ($_SESSION['log_user'] == -1) 
 	{
