@@ -952,6 +952,17 @@ return R::getAll("SELECT room.building AS 'Корпус', `tv`.num AS 'Номе�
 										WHERE room.number = tv.num AND room.type = type.id ORDER BY tv.num ASC");
 }
 
+function write_button()
+{
+	echo "
+	<form action='' method='POST'>
+	<button type='submit' name = 'change'>Изменить данные паспорта</button>
+	<button type='submit' name = 'choice'>Выбрать новую путёвку</button>
+	<button type='submit' name = 'list'>Мои путёвки</button>
+	</br>
+	</form>";
+}
+
 ?>
 </center>
 <title>Пансионат</title>
