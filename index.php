@@ -220,11 +220,53 @@
 				print_table($resul);
 				echo "</br>";
 				print_select_room_change($resul, $begin, $end, $tic);
-				// Другая кнопка		
+					
 			}
 		}
 		}
+		if (isset($data['choice_change_room']))
+		{
+			// Изменение комнаты путёвки при неподходящей дате.
+			R::exec("UPDATE `ticket` 
+				SET room = " . $data['rooms'] . ", 
+				check_date = '" . $data['begin']. "', 
+				eviction_date = '" . $data['end']. "' WHERE id = " . $data['tic']);
+			echo "Путёвка изменена";
+		}
 
+		if (isset($data['change_room']))
+		{
+			// Изменение комнаты путёвки.
+
+			$tic = R::getAll("SELECT * FROM `ticket` WHERE id = " . $data['choiced_tickets']);
+			$tic = $tic[0];
+
+			$resul = get_rooms($begin, $end);
+			echo "</br>Доступные комнаты:";
+			print_table($resul);
+			echo "</br>"; 
+					
+			// Вывести список свободных комнат.
+			print_select_change_room($resul, $tic['id']);;
+		}
+
+		if (isset($data['change_ticket_room']))
+		{
+			// Изменение комнаты в путёвке.
+			R::exec("UPDATE `ticket` SET room = " . $data['rooms'] . " WHERE id = " . $data['tic']);
+			echo "Путёвка изменена";
+		}
+
+		if (isset($data['delete_ticket']))
+		{
+			// Удаление путёвки. 
+			R::exec("DELETE FROM `ticket` WHERE `ticket`.`id` = " . $data['choiced_tickets']);
+			echo "Путёвка отменена";
+		}
+
+		write_button();
+
+		echo "<a href='log_out.php'>Выйти</a></br></br>";
 		
 	}else if ($_SESSION['log_user'] == -1) 
 	{
