@@ -205,6 +205,153 @@
 			echo "Комнаты добавлены в корпус №" . $data['building'];
 		}
 		
+			// Изменение комнат и типов. 
+		if (isset($data['change_rooms']))
+		{
+			$res = R::getAll("SELECT number FROM `room`");
+			if ($res) 
+			{
+				echo "<form action='' method='POST'>
+						Выберите комнату, которую необходимо изменить
+					    <select  name='room'>";
+				foreach ($res as $key => $value) 
+				{
+					echo "<option value= '" .  $value['number'] . "'>" . $value['number'] . "</option>";
+				}
+				echo "<p><input type='submit' name = 'change_choice_room' value='Выбрать'></p></select></form>";
+			}
+			else echo "Комнат нет";
+			echo "</br>";
+		}
+
+		if (isset($data['change_choice_room']))
+		{
+			// Выбор 
+			$res = R::getAll("SELECT `Количество мест`, `Тип`, `Состояние`, `Номер корпуса` FROM `комната` WHERE `Номер комнаты` = " . $data['room']);
+			echo "Текущие характеристики комнаты №". $data['room'] .": ";
+			print_table($res);
+			echo "</br>Новые характеристики:</br>";
+
+			$types = R::getAll("SELECT type.id, type.name FROM `type`");
+			$states = R::getAll("SELECT `state`.`id`, `state`.`name` FROM `state` ORDER BY `state`.`id` DESC");
+
+			echo "<form action='' method='POST'>
+					<input type = 'hidden' name = 'room' value = '". $data['room'] ."'>
+					Количество мест
+					<input type='number' name = 'places' min = 1 max = 20> </br></br>
+					Тип комнаты
+					<select name='type_room'>";
+			foreach ($types as $key => $value)
+			{
+				echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+			}
+			echo "</select></br></br>
+					Состояние
+					<select name='state'>";
+			foreach ($states as $key => $value)
+			{
+				echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+			}
+			echo "</select>
+					<p><input type='submit' name = 'change_rooms_atr' value='Сохранить изменения'></p></form>";
+		}
+		if (isset($data['change_rooms_atr']))
+		{
+			if ($data['places'] == '') 
+			{				
+				$res = R::getAll("SELECT `Количество мест`, `Тип`, `Состояние`, `Номер корпуса` FROM `комната` WHERE `Номер комнаты` = " . $data['room']);
+				echo "Текущие характеристики комнаты №". $data['room'] .": ";
+				print_table($res);
+				echo "</br>Введите номер комнаты</br>Новые характеристики:</br>";
+
+				$types = R::getAll("SELECT type.id, type.name FROM `type`");
+				$states = R::getAll("SELECT `state`.`id`, `state`.`name` FROM `state` ORDER BY `state`.`id` DESC");
+
+				echo "<form action='' method='POST'>
+						<input type = 'hidden' name = 'room' value = '". $data['room'] ."'>
+						Количество мест
+						<input type='number' name = 'places' min = 1 max = 20> </br></br>
+						Тип комнаты
+						<select name='type_room'>";
+				foreach ($types as $key => $value)
+				{
+					echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+				}
+				echo "</select></br></br>
+						Состояние
+						<select name='state'>";
+				foreach ($states as $key => $value)
+				{
+					echo "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+				}
+				echo "</select>
+					<p><input type='submit' name = 'change_rooms_atr' value='Сохранить изменения'></p></form>";
+			}
+			else
+			{
+				R::exec("UPDATE `room` 
+					SET `places` = '". $data['places'] ."',
+					type = ". $data['type_room'] .",
+					room.state = ".  $data['state'] ."
+					WHERE `room`.`number` = " . $data['room']);
+				echo "Комната №". $data['room'] ." изменена.";
+			}
+		}
+
+		if (isset($data['change_types']))
+		{
+			$res = R::getAll("SELECT type.id AS 'Номер типа', type.name AS 'Тип', type.cost AS 'Цена' FROM `type`");
+			echo "Доступные типы: ";
+			print_table($res);
+			echo "</br>";
+
+			echo "<form action='' method='POST'>
+					Выберите тип 
+					<select name='type'>";
+			foreach ($res as $key => $value)
+			{
+				echo "<option value= '" .  $value['Номер типа'] . "'>" . $value['Тип'] . "</option>";
+			}
+			echo "</select>
+					<p><input type='submit' name = 'choice_type' value='Выбрать'></p></form>";
+		}
+		
+		if (isset($data['choice_type']))
+		{
+			$res = R::getAll("SELECT type.name, type.cost FROM `type` WHERE id = " . $data['type']);
+			$res = $res[0];
+			echo "Вы выбрали тип " . $res['name'] . ". Текущая цена за день - " . $res['cost'] . ".</br></br>";
+			echo "<form action='' method='POST'>
+				<input type = 'hidden' name = 'type' value = '". $data['type'] ."'>
+				Новая цена 
+				<input type='number' name = 'cost' min = 100 max = 1000000> </br>
+				<p><input type='submit' name = 'save_cost' value='Сохранить изменения'></p>
+				</form>";		
+		}
+
+		if (isset($data['save_cost']))
+		{
+			if ($data['cost'] == '') 
+			{
+				$res = R::getAll("SELECT type.name, type.cost FROM `type` WHERE id = " . $data['type']);
+				$res = $res[0];
+				echo "Вы выбрали тип " . $res['name'] . ". Текущая цена за день - " . $res['cost'] . ".</br></br>";
+				echo "<form action='' method='POST'>
+					<input type = 'hidden' name = 'type' value = '". $data['type'] ."'>
+					Введите новую цену. </br>
+					Новая цена 
+					<input type='number' name = 'cost' min = 100 max = 1000000> </br>
+					<p><input type='submit' name = 'save_cost' value='Сохранить изменения'></p>
+					</form>";	
+			}
+			else
+			{
+				R::exec("UPDATE `type` SET `cost` = '". $data['cost'] ."' WHERE `type`.`id` = " . $data['type']);
+				echo "Цена типа изменена.";
+			}
+		}
+
+		
 	}else
 	{
 		// Список пансионатов.
