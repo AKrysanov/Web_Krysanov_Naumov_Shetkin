@@ -350,7 +350,75 @@
 				echo "Цена типа изменена.";
 			}
 		}
+		// Удаление всякого.
+		if (isset($data['delete_building']))
+		{
+			$res = R::getAll("SELECT id FROM `building`ORDER BY `building`.`id` ASC");
+			if ($res)
+			{
+			echo "<form action='' method='POST'>
+						После удаления все комнаты корпуса также пропадут. Будьте осторожны. </br></br>
+						Выбрать корпус
+					    <select  name='building'>";
+			foreach ($res as $key => $value) 
+			{
+				echo "<option value= '" .  $value['id'] . "'>" . $value['id'] . "</option>";
+			}
+			echo "<p><input type='submit' name = 'delete_choice_building' value='Удалить'></p></select></form>";
+			} else echo "Корпусов нет";
+		}
 
+		if (isset($data['delete_choice_building']))
+		{
+			R::exec("DELETE FROM `building` WHERE `building`.`id` = " . $data['building']);
+			echo "Корпус удалён";
+		}
+
+		if (isset($data['delete_rooms']))
+		{
+			$res = R::getAll("SELECT number FROM `room` ORDER BY number ASC");
+			if ($res)
+			{
+				echo "<form action='' method='POST'>
+							После удаления комнату уже не вернуть. Будьте осторожны. </br></br>
+							Выбрать комнату
+						    <select  name='room'>";
+				foreach ($res as $key => $value) 
+				{
+					echo "<option value= '" .  $value['number'] . "'>" . $value['number'] . "</option>";
+				}
+				echo "<p><input type='submit' name = 'delete_choice_room' value='Удалить'></p></select></form>";
+			} else echo "Комнат нет";
+		}
+
+		if (isset($data['delete_choice_room']))
+		{
+			R::exec("DELETE FROM `room` WHERE `room`.`number` = " . $data['room']);
+			echo "Комната удалена";
+		}
+
+		if (isset($data['delete_ticket']))
+		{
+			$res = R::getAll("SELECT id FROM `ticket` ORDER BY id ASC");
+			if ($res)
+			{
+				echo "<form action='' method='POST'>
+							После удаления путёвку уже не вернуть. Будьте осторожны. </br></br>
+							Выбрать путёвку
+						    <select  name='ticket'>";
+				foreach ($res as $key => $value) 
+				{
+					echo "<option value= '" .  $value['id'] . "'>" . $value['id'] . "</option>";
+				}
+				echo "<p><input type='submit' name = 'delete_choice_ticket' value='Удалить'></p></select></form>";
+			} else echo "Путёвок нет";
+		}
+
+		if (isset($data['delete_choice_ticket']))
+		{
+			R::exec("DELETE FROM `ticket` WHERE `ticket`.`id` = " . $data['ticket']);
+			echo "Путёвка удалена";
+		}
 		
 	}else
 	{
