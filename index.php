@@ -67,6 +67,31 @@
 			echo "Путёвка куплена";
 		}
 
+		if (isset($data['change']))
+		{
+			// Изменение имени.
+			change_name_print();
+		}
+
+		if (isset($data['change_name']))
+		{
+			// Изменение имени. 
+			$resul = R::getAll("SELECT id FROM `client` WHERE id = '". $data['series'] . $data['num']. "'");
+			if (empty($resul))
+			{
+				R::exec("UPDATE `client` 
+				SET `id` = '" . $data['series'] . $data['num'] . "', 
+				`surname` = '" .$data['surname'] . "',   
+				`name` = '" . $data['name'].	 "',   
+				`patronymic` = '" . $data['patr']. "'  
+				WHERE `client`.`id` = '" . $id. "'");
+			} 
+			else 
+			{
+				change_name_print();
+				echo "Пользователь с таким паспортом уже существует";
+			}
+		}
 		
 	}else if ($_SESSION['log_user'] == -1) 
 	{
@@ -627,6 +652,25 @@ function print_date()
 			<button type='submit' name = 'get_rooms'>Свободные номера в этот период</button>
 			</form>";
 }
+
+function change_name_print()
+{
+	echo "<form action='' method='POST'>
+				ФИО должно состоять из русских букв, начинаться с заглавной, не содержать пробелов и чисел
+				</br>Фамилия</br>
+				<input type='text' name='surname' pattern = '[А-Я]+([а-я]{1,24})' value='". $res[0]['surname'] . "'>
+				</br>Имя</br>	
+					<input type='text' name='name' pattern = '[А-Я]+([а-я]{1,24})' value='". $res[0]['name'] . "'>
+				</br>Отчество</br>
+					<input type='text' name='patr' pattern = '[А-Я]+([а-я]{1,24})'' value='" . $res[0]['patronymic'] . "''>
+				</br>Серия и номер паспорта</br>
+					<input type='text' name='series' pattern = '[0-9]{4}'' value='" . $data['series'] . "''>
+					<input type='text' name='num' pattern = '[0-9]{6}' value='" . $data['num'] . "'>
+				</p>
+				<button type='submit' name = 'change_name'>Обновить данные</button>
+				</form>";
+}
+
 ?>
 </center>
 <title>Пансионат</title>
