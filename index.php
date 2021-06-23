@@ -12,7 +12,7 @@
 		echo "Вы вошли как администратор.</br></br>";
 
 		$data = $_POST;
-		
+		//вывод информации
 		if (isset($data['get_building']))
 		{
 			$res = R::getAll("SELECT * FROM `корпус`");
@@ -121,6 +121,90 @@
 					echo "</br>";
 				}
 		}
+		//Добавление
+		if (isset($data['add_rooms']))
+		{
+			echo "Выберите корпус и введите количетсво добавляемых комнат(1-20)</br></br>";
+
+			$res = R::getAll("SELECT id FROM `building`ORDER BY `building`.`id` ASC");
+			echo "<form action='' method='POST'>
+						Выбрать корпус
+					    <select  name='building'>";
+			foreach ($res as $key => $value) 
+			{
+				echo "<option value= '" .  $value['id'] . "'>" . $value['id'] . "</option>";
+			}
+			echo "</select>
+				<p> Количество добавляемых комнат
+				<input type='number' min = 1 max = 20 name = 'count_rooms'></p>
+				<p><input type='submit' name = 'adding_room' value='Выбрать'></p>
+				</form>";
+		}
+
+		if (isset($data['adding_room']))
+		{
+			if ($data['count_rooms'] == '') $cnt = 1;
+			else $cnt = $data['count_rooms'];
+
+			$max = R::getAll("SELECT MAX(room.number) AS 'max' FROM `room` WHERE room.building = ". $data['building']);
+			$max = $max[0]['max'] % 1000;
+
+			echo "<form action='' method='POST'>
+			<input type = 'hidden' name = 'building' value = '". $data['building'] ."'>
+			<input type = 'hidden' name = 'count' value = '". $cnt ."'>
+			<input type = 'hidden' name = 'max' value = '". $max  ."'>
+			<table>
+			<style>
+		        	table 
+		        	{
+		            	border: solid 1px; 
+		            	border-collapse: collapse;
+		        	}	
+		        	TD, TH {
+					    padding: 3px; 
+		   				border: 1px solid black; 
+		   			}	
+		    		</style>
+		    		<tr><td>Номер комнаты</td><td>Количество мест</td><td>Тип</td><td>Состояние</td></tr>";
+
+		    $type = R::getAll("SELECT id, name FROM `type`");
+			$select_type = "";
+			foreach ($type as $key => $value)
+				$select_type = $select_type . "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+
+			$states = R::getAll("SELECT `state`.`id`, `state`.`name` FROM `state` ORDER BY `state`.`id` DESC");
+			$select_state = "";
+			foreach ($states as $key => $value)
+				$select_state = $select_state . "<option value= '" .  $value['id'] . "'>" . $value['name'] . "</option>";
+
+			for ($i=0; $i < $cnt; $i++) 
+			{ 
+				echo "<tr><td>" . (1000*$data['building'] + $i + $max+1) . "</td>
+				<td><input type='number' min = 1 max = 20 name = 'place". ($i+1) ."' value = 1></td>
+				<td><select name='type". ($i+1) ."'>" . $select_type . "</select></td>
+				<td><select name='state". ($i+1) ."'>" . $select_state . "</select></td>";
+				echo "</tr>";
+			}
+			echo "</table>
+			<p><input type='submit' name = 'adding_all_rooms' value='Добавить комнаты'></p>
+			</form>";
+		}
+
+		if (isset($data['adding_all_rooms']))
+		{
+			for ($i=0; $i < $data['count']; $i++) 
+			{ 
+				if ($data['place' . ($i+1)] == '') $data['place' . ($i+1)] = 1;
+				R::exec("INSERT INTO `room` (`number`, `building`, `places`, `type`, `state`) 
+					VALUES ('". (1000*$data['building'] + $i + $data['max']+1) ."',
+					'". $data['building'] ."',
+					'". $data['place' . ($i+1)] ."',
+					'". $data['type' . ($i+1)] ."',
+					'". $data['state' . ($i+1)] ."')");
+			}
+			echo "Комнаты добавлены в корпус №" . $data['building'];
+		}
+		
 	}else
 	{
 		// Список пансионатов.
