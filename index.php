@@ -13,6 +13,13 @@
 		echo "Здравствуйте, ". $res[0]['name'] . " ". $res[0]['patronymic'] . ". </br></br>";
 
 		$data = $_POST;
+		
+		// Обработка кнопок
+		if (isset($data['choice']))
+		{
+			// Новая путёвка. 
+			print_date();
+		}
 	}else if ($_SESSION['log_user'] == -1) 
 	{
 		echo "Вы вошли как администратор.</br></br>";
@@ -562,6 +569,16 @@ function print_table($table)
 	echo "</table>";
 }
 
+function print_date()
+{
+	echo "<form action='' method='POST'>
+			Дата заезда
+			<input type = date name = date_begin min = " . date("Y-m-d") ." value = " . $_POST['date_begin']. "></br></br>
+			Дата выезда
+			<input type = date name = date_end min = " . date("Y-m-d") . " value = " . $_POST['date_end']. "> </br><br>
+			<button type='submit' name = 'get_rooms'>Свободные номера в этот период</button>
+			</form>";
+}
 ?>
 </center>
 <title>Пансионат</title>
